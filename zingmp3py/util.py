@@ -2,6 +2,17 @@ from hashlib import sha256
 import hashlib
 import time
 import hmac
+import urllib.parse
+
+def getUrlTypeAndID(url):
+    ourl = urllib.parse.urlparse(url)
+    if ourl.hostname != 'zingmp3.vn':
+        raise ZingMp3Error({"msg": "Link Không Hợp Lệ: %s" % url})
+    ph = ourl.path.split('/')[1:]
+    print(ph)
+    urltype = ph[0]
+    urlid = ph[-1][:-5]
+    return {"type": urltype, "id": urlid}
 
 def getHash256(data):
     hx = sha256(data.encode('utf8'))
@@ -16,4 +27,14 @@ def hashParam(path, param, haveParam):
     strHash = f"ctime={now}"
     if (haveParam == 0): strHash += param;
     h1 = getHash256(strHash)
-    return [getHmac512(path + h1, '2aa2d1c561e809b267f3638c4a307aab'),  now];
+    return [getHmac512(path + h1, '2aa2d1c561e809b267f3638c4a307aab'),  now]
+
+
+class ZingMp3Error(Exception):
+    def __init__(self, data):
+        self.data = data
+        super().__init__(data["msg"])
+
+    @property
+    def raw(self):
+        return self.data

@@ -1,6 +1,16 @@
 import aiohttp
+import time
 from .util import *
 
+cooke = {"cookies": {}, "last_updated": 0}
+async def get_ck(request: aiohttp.ClientSession):
+    if int(time.time() - 60) < int(time.time()):
+        async with request.get("https://zingmp3.vn") as r:
+            cooke["cookies"] = r.cookies
+            cooke["last_updated"] = int(time.time())
+            return cooke["cookies"]
+    else:
+        return cooke["cookies"]
 async def requestZing(path, qs={}, haveParam=0):
     param = "&".join([f"{i}={k}" for i,k in qs.items()])
     sig = hashParam(path, param, haveParam)
@@ -9,10 +19,12 @@ async def requestZing(path, qs={}, haveParam=0):
     qs.update({"sig": sig[0]})
     url = "https://zingmp3.vn" + path
     async with aiohttp.ClientSession() as s:
-        async with s.get("https://zingmp3.vn") as r:
-            pass
-        async with s.get(url, params=qs) as r:
-            return await r.json()
+        ck = await get_ck(s)
+        async with s.get(url, params=qs, cookies=ck) as r:
+            data = await r.json()
+            if data['err'] != 0:
+                raise ZingMp3Error(data)
+            return data
 
 class ZingMp3Async:
     def __init__(self):
@@ -23,6 +35,9 @@ class ZingMp3Async:
 
     async def getDetailArtist(self, alias):
         return await requestZing("/api/v2/page/get/artist", {"alias": alias}, 1)
+
+    async def getRadioInfo(self, id):
+        return await requestZing("/api/v2/livestream/get/info", {"id": id})
 
     async def getSongInfo(self, id):
         return await requestZing("/api/v2/song/get/info", {"id": id})
@@ -40,10 +55,10 @@ class ZingMp3Async:
         return await requestZing("/api/v2/page/get/week-chart", {"id": id})
 
     async def getNewReleaseChart(self):
-        return await requestZing("/api/v2/page/get/newrelease-chart")
+        return await requestZing("/api/v2/page/get/newrelease-chart", haveParam=1)
 
     async def getTop100(self):
-        return await requestZing("/api/v2/page/get/top-100")
+        return await requestZing("/api/v2/page/get/top-100", haveParam=1)
 
     async def search(self, search):
         return await requestZing("/api/v2/search/multi", {"q": search}, 1)

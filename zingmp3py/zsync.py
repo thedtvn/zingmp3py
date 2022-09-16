@@ -1,6 +1,17 @@
 import requests
+import time
 from .util import *
 
+cooke = {"cookies": {}, "last_updated": 0}
+
+def get_ck(request: requests.Session):
+    if int(time.time() - 60) < int(time.time()):
+        with request.get("https://zingmp3.vn") as r:
+            cooke["cookies"] = r.cookies
+            cooke["last_updated"] = int(time.time())
+            return cooke["cookies"]
+    else:
+        return cooke["cookies"]
 def requestZing(path, qs={}, haveParam=0):
     param = "&".join([f"{i}={k}" for i,k in qs.items()])
     sig = hashParam(path, param, haveParam)
@@ -9,11 +20,11 @@ def requestZing(path, qs={}, haveParam=0):
     qs.update({"sig": sig[0]})
     url = "https://zingmp3.vn" + path
     with requests.Session() as s:
-        with s.get("https://zingmp3.vn") as r:
-            pass
-        with s.get(url, params=qs) as r:
-            r.raise_for_status()
-            return r.json()
+        with s.get(url, params=qs, cookies=get_ck(s)) as r:
+            data = r.json()
+            if data['err'] != 0:
+                raise ZingMp3Error(data)
+            return data
 
 class ZingMp3:
     def __init__(self):
@@ -24,6 +35,9 @@ class ZingMp3:
 
     def getDetailArtist(self, alias):
         return requestZing("/api/v2/page/get/artist", {"alias": alias}, 1)
+
+    def getRadioInfo(self, id):
+        return requestZing("/api/v2/livestream/get/info", {"id": id})
 
     def getSongInfo(self, id):
         return requestZing("/api/v2/song/get/info", {"id": id})
@@ -41,10 +55,10 @@ class ZingMp3:
         return requestZing("/api/v2/page/get/week-chart", {"id": id})
 
     def getNewReleaseChart(self):
-        return requestZing("/api/v2/page/get/newrelease-chart")
+        return requestZing("/api/v2/page/get/newrelease-chart", haveParam=1)
 
     def getTop100(self):
-        return requestZing("/api/v2/page/get/top-100")
+        return requestZing("/api/v2/page/get/top-100", haveParam=1)
 
     def search(self, search):
         return requestZing("/api/v2/search/multi", {"q": search}, 1)

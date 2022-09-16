@@ -1,8 +1,10 @@
-from zingmp3 import ZingMp3
+from zingmp3py import *
 
+getUrlTypeAndID("https://zinmp3.vn/liveradio/IWZ979CW.html")
 zi = ZingMp3()
 zi.getDetailPlaylist("67ZFO8DZ")
-zi.getDetailArtist("đen vâu")
+zi.getDetailArtist("Cammie")
+zi.getRadioInfo("IWZ979CW")
 zi.getSongInfo("ZWAF6UFD")
 zi.getSongStreaming("ZWAF6UFD")
 zi.getHomePage()
