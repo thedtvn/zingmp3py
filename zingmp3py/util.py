@@ -9,7 +9,6 @@ def getUrlTypeAndID(url):
     if ourl.hostname != 'zingmp3.vn':
         raise ZingMp3Error({"msg": "Link Không Hợp Lệ: %s" % url})
     ph = ourl.path.split('/')[1:]
-    print(ph)
     urltype = ph[0]
     urlid = ph[-1][:-5]
     return {"type": urltype, "id": urlid}
