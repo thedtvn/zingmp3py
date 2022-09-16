@@ -1,6 +1,6 @@
-from zingmp3py import *
+from zingmp3py import ZingMp3, getUrlTypeAndID
 
-getUrlTypeAndID("https://zinmp3.vn/liveradio/IWZ979CW.html")
+getUrlTypeAndID("https://zingmp3.vn/liveradio/IWZ979CW.html")
 zi = ZingMp3()
 zi.getDetailPlaylist("67ZFO8DZ")
 zi.getDetailArtist("Cammie")
