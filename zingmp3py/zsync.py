@@ -1,6 +1,7 @@
 import requests
 import re
 from .util import *
+from .sobj import *
 
 cooke = {"cookies": {}, "last_updated": 0}
 apikey = {}
@@ -39,6 +40,7 @@ def requestZing(path, qs={}, haveParam=0):
             data = r.json()
             if data['err'] != 0:
                 raise ZingMp3Error(data)
+            print(r.url)
             return data
 
 class ZingMp3:
@@ -46,16 +48,20 @@ class ZingMp3:
         pass
 
     def getDetailPlaylist(self, id):
-        return requestZing("/api/v2/page/get/playlist", {"id": id})
+        data = requestZing("/api/v2/page/get/playlist", {"id": id})
+        return Playlist(data["data"], client=self)
 
     def getDetailArtist(self, alias):
-        return requestZing("/api/v2/page/get/artist", {"alias": alias}, 1)
+        data = requestZing("/api/v2/page/get/artist", {"alias": alias}, 1)
+        return Artist(data["data"])
 
     def getRadioInfo(self, id):
-        return requestZing("/api/v2/livestream/get/info", {"id": id})
+        data = requestZing("/api/v2/livestream/get/info", {"id": id})
+        return LiveRadio(data["data"])
 
     def getSongInfo(self, id):
-        return requestZing("/api/v2/song/get/info", {"id": id})
+        data = requestZing("/api/v2/song/get/info", {"id": id})
+        return Song(data["data"], client=self)
 
     def getSongStreaming(self, id):
         return requestZing("/api/v2/song/get/streaming", {"id": id})

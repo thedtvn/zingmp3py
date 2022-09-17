@@ -47,5 +47,5 @@ loop.run_until_complete(main())
 ```py
 from zingmp3py import getUrlTypeAndID
 
-getUrlTypeAndID("https://zinmp3.vn/liveradio/IWZ979CW.html")
+getUrlTypeAndID("https://zingmp3.vn/liveradio/IWZ979CW.html")
 ```

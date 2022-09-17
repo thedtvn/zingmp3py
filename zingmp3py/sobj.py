@@ -1,5 +1,5 @@
 
-host = "https://zingmp3.vn/"
+host = "https://zingmp3.vn"
 
 
 class LiveRadio:
@@ -23,31 +23,61 @@ class LiveRadio:
         self.total_reaction = indata["totalReaction"]
 
 class Song:
-    __slots__ = ["title"
-                 "artist", "album", "artist"]
+    __slots__ = [
+                 "id",
+                 "isOffical",
+                 "listen",
+                 "duration",
+                 "thumbnail",
+                 "like",
+                 "artists",
+                 "title",
+                 "link",
+                 "client"]
     def __init__(self, indata, client):
+        self.client = client
         self.title = indata["title"]
         self.id = indata["encodeId"]
-        self.artist = Artist(indata["artist"])
+        self.artists = [Artist(i) for i in indata["artists"]]
         self.duration = indata.get("duration")
         self.thumbnail = indata.get("thumbnailM")
         self.isOffical = indata.get("isOffical")
         self.like = indata.get("like")
         self.listen = indata.get("listen")
+        self.link = host+indata.get("link")
 
-    def
 
+    def getStreaming(self):
+        return self.client.getSongStreaming(self.id)
+
+class Playlist:
+    __slots__ = [
+        "songs",
+        "title"
+    ]
+
+    def __init__(self, indata, client):
+        self.songs = [Song(song, client) for song in indata['song']["items"]]
+        self.title = indata['title']
 
 class Artist:
-    {
-        "id": "IWZA6CIZ",
-        "name": "ERIK",
-        "link": "/ERIK",
-        "spotlight": True,
-        "alias": "ERIK",
-        "thumbnail": "https://photo-resize-zmp3.zmdcdn.me/w240_r1x1_jpeg/avatars/5/5/b/6/55b66a1a7b1e2cf8d5fff1abfd0d4605.jpg",
-        "thumbnailM": "https://photo-resize-zmp3.zmdcdn.me/w360_r1x1_jpeg/avatars/5/5/b/6/55b66a1a7b1e2cf8d5fff1abfd0d4605.jpg",
-        "isOA": True,
-        "isOABrand": False,
-        "totalFollow": 480164
-    }
+    __slots__ = [
+        "id",
+        "name",
+        "link",
+        "spotlight",
+        "alias",
+        "thumbnail",
+        "isOA",
+        "isOABrand",
+        "totalFollow"
+    ]
+    def __init__(self, indata):
+        self.name = indata["name"]
+        self.id = indata["id"]
+        self.link = host+indata ["link"]
+        self.isOABrand = indata["isOABrand"]
+        self.totalFollow = indata.get("totalFollow")
+        self.thumbnail = indata["thumbnailM"]
+        self.isOA = indata["isOA"]
+        self.spotlight = indata["spotlight"]
