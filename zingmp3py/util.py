@@ -21,12 +21,12 @@ def getHmac512(data, key):
     h = hmac.new(key.encode(), data.encode(), hashlib.sha512)
     return h.hexdigest()
 
-def hashParam(path, param, haveParam):
+def hashParam(key, path, param, haveParam):
     now = int(time.time())
     strHash = f"ctime={now}"
     if (haveParam == 0): strHash += param;
     h1 = getHash256(strHash)
-    return [getHmac512(path + h1, '2aa2d1c561e809b267f3638c4a307aab'),  now]
+    return [getHmac512(path + h1, key),  now]
 
 
 class ZingMp3Error(Exception):

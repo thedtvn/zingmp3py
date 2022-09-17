@@ -1,4 +1,6 @@
 import asyncio
+import aiohttp
+import re
 from zingmp3py import ZingMp3Async
 
 async def main():

@@ -1,8 +1,9 @@
 import requests
-import time
+import re
 from .util import *
 
 cooke = {"cookies": {}, "last_updated": 0}
+apikey = {}
 
 def get_ck(request: requests.Session):
     if int(time.time() - 60) < int(time.time()):
@@ -12,10 +13,24 @@ def get_ck(request: requests.Session):
             return cooke["cookies"]
     else:
         return cooke["cookies"]
+
+def get_key():
+    if not apikey:
+        with requests.Session() as s:
+            with s.get("https://zjs.zmdcdn.me/zmp3-desktop/releases/v1.7.34/static/js/main.min.js") as r:
+                data = r.text
+            key = re.findall(r',h="(.*?)",p=\["ctime","id","type","page","count","version"\]', data)[0]
+            skey = re.findall(r"return d\(\)\(t\+r,\"(.*?)\"\)", data)[0]
+            apikey.update({"data": [key, skey]})
+            return [key, skey]
+    else:
+        return apikey["data"]
+
 def requestZing(path, qs={}, haveParam=0):
+    apikey, skey = get_key()
     param = "&".join([f"{i}={k}" for i,k in qs.items()])
-    sig = hashParam(path, param, haveParam)
-    qs.update({"apiKey": '88265e23d4284f25963e6eedac8fbfa3'})
+    sig = hashParam(skey, path, param, haveParam)
+    qs.update({"apiKey": apikey})
     qs.update({"ctime": sig[1]})
     qs.update({"sig": sig[0]})
     url = "https://zingmp3.vn" + path
