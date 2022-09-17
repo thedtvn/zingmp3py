@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
    name='zingmp3py',
-   version="0.1.0",
+   version="0.2.0",
    description='A light weight Python library for the ZingMp3 API',
    author='The DT',
    author_email='duongtuan30306@gmail.com',
