@@ -9,10 +9,6 @@ async def main():
     await zi.getDetailArtist("Cammie")
     await zi.getSongInfo("ZWAF6UFD")
     await zi.getSongStreaming("ZWAF6UFD")
-    await zi.getHomePage()
-    await zi.getChartHome()
-    await zi.getWeekChart("ZWAF6UFD")
-    await zi.getNewReleaseChart()
     await zi.getTop100()
     await zi.search("rick roll")
 

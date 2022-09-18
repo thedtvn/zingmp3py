@@ -1,6 +1,6 @@
 # zingmp3py
 #### A light weight Python library for the ZingMp3 API
-##### *all functions are return dict or JSON
+##### *all functions are return dict or ZingMp3 Object
 
 # Sync :
 ```py
@@ -12,10 +12,6 @@ zi.getDetailArtist("Cammie")
 zi.getRadioInfo("IWZ979CW")
 zi.getSongInfo("ZWAF6UFD")
 zi.getSongStreaming("ZWAF6UFD")
-zi.getHomePage()
-zi.getChartHome()
-zi.getWeekChart("ZWAF6UFD")
-zi.getNewReleaseChart()
 zi.getTop100()
 zi.search("rick roll")
 ```
@@ -31,10 +27,6 @@ async def main():
     await zi.getDetailArtist("Cammie")
     await zi.getSongInfo("ZWAF6UFD")
     await zi.getSongStreaming("ZWAF6UFD")
-    await zi.getHomePage()
-    await zi.getChartHome()
-    await zi.getWeekChart("ZWAF6UFD")
-    await zi.getNewReleaseChart()
     await zi.getTop100()
     await zi.search("rick roll")
 

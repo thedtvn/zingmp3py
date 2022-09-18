@@ -64,24 +64,16 @@ class ZingMp3:
         return Song(data["data"], client=self)
 
     def getSongStreaming(self, id):
-        return requestZing("/api/v2/song/get/streaming", {"id": id})
-
-    def getHomePage(self, page=1):
-        return requestZing("/api/v2/page/get/home", {"page": page})
-
-    def getChartHome(self):
-        return requestZing("/api/v2/page/get/chart-home")
-
-    def getWeekChart(self, id):
-        return requestZing("/api/v2/page/get/week-chart", {"id": id})
-
-    def getNewReleaseChart(self):
-        return requestZing("/api/v2/page/get/newrelease-chart", haveParam=1)
+        data = requestZing("/api/v2/song/get/streaming", {"id": id})
+        return [Stream(i, c) for i, c in data["data"].items()]
 
     def getTop100(self):
-        return requestZing("/api/v2/page/get/top-100", haveParam=1)
+        data = requestZing("/api/v2/page/get/top-100", haveParam=1)
+        dat = data["data"]
+        return [Playlist(j, client=self) for i in dat for j in i["items"]]
 
     def search(self, search):
-        return requestZing("/api/v2/search/multi", {"q": search}, 1)
+        data = requestZing("/api/v2/search/multi", {"q": search}, 1)
+        return Search(data["data"], client=self)
 
 

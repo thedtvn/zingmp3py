@@ -1,8 +1,8 @@
+import requests
 
 host = "https://zingmp3.vn"
 
-
-class LiveRadio:
+class LiveRadio(object):
     __slots__ = [
     "id",
     "streaming_url",
@@ -22,7 +22,7 @@ class LiveRadio:
         self.thumbnail = indata["thumbnail"]
         self.total_reaction = indata["totalReaction"]
 
-class Song:
+class Song(object):
     __slots__ = [
                  "id",
                  "isOffical",
@@ -38,7 +38,7 @@ class Song:
         self.client = client
         self.title = indata["title"]
         self.id = indata["encodeId"]
-        self.artists = [Artist(i) for i in indata["artists"]]
+        self.artists = [Artist(i) for i in indata["artists"]] if indata.get("artists") else None
         self.duration = indata.get("duration")
         self.thumbnail = indata.get("thumbnailM")
         self.isOffical = indata.get("isOffical")
@@ -50,17 +50,23 @@ class Song:
     def getStreaming(self):
         return self.client.getSongStreaming(self.id)
 
-class Playlist:
+class Playlist(object):
     __slots__ = [
-        "songs",
-        "title"
+        "id",
+        "title",
+        "indata"
     ]
 
     def __init__(self, indata, client):
-        self.songs = [Song(song, client) for song in indata['song']["items"]]
+        self.id = indata["encodeId"]
+        self.indata = indata
         self.title = indata['title']
 
-class Artist:
+    @property
+    def songs(self):
+        return [Song(song, client) for song in self.indata['song']["items"]] if song.get("items") else None
+
+class Artist(object):
     __slots__ = [
         "id",
         "name",
@@ -69,15 +75,42 @@ class Artist:
         "alias",
         "thumbnail",
         "isOA",
-        "isOABrand",
         "totalFollow"
     ]
+
     def __init__(self, indata):
         self.name = indata["name"]
         self.id = indata["id"]
         self.link = host+indata ["link"]
-        self.isOABrand = indata["isOABrand"]
         self.totalFollow = indata.get("totalFollow")
         self.thumbnail = indata["thumbnailM"]
-        self.isOA = indata["isOA"]
-        self.spotlight = indata["spotlight"]
+
+class Stream(object):
+    __slots__ = ["url", "quality", "isVIP"]
+    def __init__(self, quality, url):
+        self.url = url if url != "VIP" else None
+        self.quality = quality
+        self.isVIP = bool(url == "VIP")
+
+    def download(self, *args, **kwargs):
+        if not self.isVIP:
+            r = requests.get(self.url, stream=True)
+            r.raise_for_status()
+            kwargs["mode"] = "wb"
+            with open(*args, **kwargs) as streamfile:
+                streamfile.write(r.content)
+        else:
+            print("VIP Video Can Not Download")
+
+class Search(object):
+    def __init__(self, indata, client):
+        self.indata = indata
+        self.client = client
+
+    @property
+    def songs(self):
+        return [Song(i, self.client) for i in self.indata["songs"]]
+
+    @property
+    def playlists(self):
+        return [Playlist(i, self.client) for i in self.indata["playlists"]]

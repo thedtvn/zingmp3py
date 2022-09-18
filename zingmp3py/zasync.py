@@ -2,6 +2,8 @@ import aiohttp
 import time
 import re
 from .util import *
+from .zsync import ZingMp3
+from .sobj import *
 
 cooke = {"cookies": {}, "last_updated": 0}
 apikey = {}
@@ -42,39 +44,44 @@ async def requestZing(path, qs={}, haveParam=0):
                 raise ZingMp3Error(data)
             return data
 
-class ZingMp3Async:
-    def __init__(self):
-        pass
+class Stream(Stream):
+    async def download(self, *args, **kwargs):
+        if not self.isVIP:
+            async with aiohttp.ClientSession() as s:
+                async with s.get(self.url, raise_for_status=True) as r:
+                    kwargs["mode"] = "wb"
+                    with open(*args, **kwargs) as streamfile:
+                        streamfile.write(await r.content.read())
+        else:
+            print("VIP Video Can Not Download")
 
+
+class ZingMp3Async(ZingMp3):
     async def getDetailPlaylist(self, id):
-        return await requestZing("/api/v2/page/get/playlist", {"id": id})
+        data = await requestZing("/api/v2/page/get/playlist", {"id": id})
+        return Playlist(data["data"], client=self)
 
     async def getDetailArtist(self, alias):
-        return await requestZing("/api/v2/page/get/artist", {"alias": alias}, 1)
+        data = await requestZing("/api/v2/page/get/artist", {"alias": alias}, 1)
+        return Artist(data["data"])
 
     async def getRadioInfo(self, id):
-        return await requestZing("/api/v2/livestream/get/info", {"id": id})
+        data = await requestZing("/api/v2/livestream/get/info", {"id": id})
+        return LiveRadio(data["data"])
 
     async def getSongInfo(self, id):
-        return await requestZing("/api/v2/song/get/info", {"id": id})
+        data = await requestZing("/api/v2/song/get/info", {"id": id})
+        return Song(data["data"], client=self)
 
     async def getSongStreaming(self, id):
-        return await requestZing("/api/v2/song/get/streaming", {"id": id})
-
-    async def getHomePage(self, page=1):
-        return await requestZing("/api/v2/page/get/home", {"page": page})
-
-    async def getChartHome(self):
-        return await requestZing("/api/v2/page/get/chart-home")
-
-    async def getWeekChart(self, id):
-        return await requestZing("/api/v2/page/get/week-chart", {"id": id})
-
-    async def getNewReleaseChart(self):
-        return await requestZing("/api/v2/page/get/newrelease-chart", haveParam=1)
+        data = await requestZing("/api/v2/song/get/streaming", {"id": id})
+        return [Stream(i, c) for i, c in data["data"].items()]
 
     async def getTop100(self):
-        return await requestZing("/api/v2/page/get/top-100", haveParam=1)
+        data = await requestZing("/api/v2/page/get/top-100", haveParam=1)
+        dat = data["data"]
+        return [Playlist(j, client=self) for i in dat for j in i["items"]]
 
     async def search(self, search):
-        return await requestZing("/api/v2/search/multi", {"q": search}, 1)
+        data = await requestZing("/api/v2/search/multi", {"q": search}, 1)
+        return Search(data["data"], client=self)
