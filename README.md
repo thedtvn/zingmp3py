@@ -1,4 +1,5 @@
 # zingmp3py
+[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
 #### A light weight Python library for the ZingMp3 API
 ##### *all functions are return dict or ZingMp3 Object
 
