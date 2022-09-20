@@ -40,7 +40,7 @@ class Song(object):
         self.id = indata["encodeId"]
         self.artists = [Artist(i) for i in indata["artists"]] if indata.get("artists") else None
         self.duration = indata.get("duration")
-        self.thumbnail = indata.get("thumbnailM")
+        self.thumbnail = indata.get("thumbnail")
         self.isOffical = indata.get("isOffical")
         self.like = indata.get("like")
         self.listen = indata.get("listen")
@@ -83,7 +83,7 @@ class Artist(object):
         self.id = indata["id"]
         self.link = host+indata ["link"]
         self.totalFollow = indata.get("totalFollow")
-        self.thumbnail = indata["thumbnailM"]
+        self.thumbnail = indata["thumbnail"]
 
 class Stream(object):
     __slots__ = ["url", "quality", "isVIP"]

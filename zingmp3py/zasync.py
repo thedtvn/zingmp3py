@@ -55,6 +55,10 @@ class Stream(Stream):
         else:
             print("VIP Video Can Not Download")
 
+class Song(Song):
+    async def getStreaming(self):
+        return await self.client.getSongStreaming(self.id)
+
 
 class ZingMp3Async(ZingMp3):
     async def getDetailPlaylist(self, id):
