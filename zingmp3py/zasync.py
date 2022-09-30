@@ -8,7 +8,7 @@ from .sobj import *
 cooke = {"cookies": {}, "last_updated": 0}
 apikey = {}
 async def get_ck(request: aiohttp.ClientSession):
-    if int(time.time() - 60) < int(time.time()):
+    if int(cooke["last_updated"] + 60) < int(time.time()):
         async with request.get("https://zingmp3.vn") as r:
             cooke["cookies"] = r.cookies
             cooke["last_updated"] = int(time.time())
