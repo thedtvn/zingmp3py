@@ -59,6 +59,23 @@ class Song(Song):
     async def getStreaming(self):
         return await self.client.getSongStreaming(self.id)
 
+class Playlist(Playlist):
+    __slots__ = [
+        "id",
+        "title",
+        "indata",
+        "client"
+    ]
+
+    def __init__(self, indata, client):
+        self.id = indata["encodeId"]
+        self.indata = indata
+        self.title = indata['title']
+        self.client = client
+
+    @property
+    def songs(self):
+        return [Song(song, self.client) for song in self.indata['song']["items"]]
 
 class ZingMp3Async(ZingMp3):
     async def getDetailPlaylist(self, id):
