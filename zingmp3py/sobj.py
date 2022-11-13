@@ -54,17 +54,19 @@ class Playlist(object):
     __slots__ = [
         "id",
         "title",
-        "indata"
+        "indata",
+        "client"
     ]
 
     def __init__(self, indata, client):
         self.id = indata["encodeId"]
         self.indata = indata
         self.title = indata['title']
+        self.client = client
 
     @property
     def songs(self):
-        return [Song(song, client) for song in self.indata['song']["items"]] if song.get("items") else None
+        return [Song(song, self.client) for song in self.indata['song']["items"]]
 
 class Artist(object):
     __slots__ = [

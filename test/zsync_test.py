@@ -2,7 +2,7 @@ from zingmp3py import ZingMp3, getUrlTypeAndID
 
 getUrlTypeAndID("https://zingmp3.vn/liveradio/IWZ979CW.html")
 zi = ZingMp3()
-zi.getDetailPlaylist("67ZFO8DZ")
+print(zi.getDetailPlaylist("ZB08FIBW").songs)
 zi.getDetailArtist("Cammie")
 zi.getRadioInfo("IWZ979CW")
 zi.getSongInfo("ZWAF6UFD")

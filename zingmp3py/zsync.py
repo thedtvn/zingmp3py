@@ -40,7 +40,6 @@ def requestZing(path, qs={}, haveParam=0):
             data = r.json()
             if data['err'] != 0:
                 raise ZingMp3Error(data)
-            print(r.url)
             return data
 
 class ZingMp3:
