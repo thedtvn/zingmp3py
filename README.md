@@ -3,6 +3,19 @@
 #### A light weight Python library for the ZingMp3 API
 ##### *all functions are return dict or ZingMp3 Object
 
+# install 
+
+## pypi
+```
+pip install zingmp3py
+```
+
+## Git (version in development)
+```
+pip install zingmp3py
+```
+
+
 # Sync :
 ```py
 from zingmp3py import ZingMp3
