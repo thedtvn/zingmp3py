@@ -12,7 +12,7 @@ pip install zingmp3py
 
 ## Git (version in development)
 ```
-pip install zingmp3py
+pip install git+https://github.com/thedtvn/zingmp3py.git
 ```
 
 
