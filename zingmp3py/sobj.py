@@ -38,7 +38,7 @@ class Song(object):
         self.client = client
         self.title = indata["title"]
         self.id = indata["encodeId"]
-        self.artists = [Artist(i) for i in indata["artists"]] if indata.get("artists") else None
+        self.artists = [Artist(i) for i in indata.get("artists", [])]
         self.duration = indata.get("duration")
         self.thumbnail = indata.get("thumbnail")
         self.isOffical = indata.get("isOffical")
