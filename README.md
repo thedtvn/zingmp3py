@@ -44,8 +44,7 @@ async def main():
     await zi.getTop100()
     await zi.search("rick roll")
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
+asyncio.run(main())
 ```
 
 ## Get Type And ID
