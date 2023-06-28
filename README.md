@@ -21,6 +21,8 @@ pip install git+https://github.com/thedtvn/zingmp3py.git
 from zingmp3py import ZingMp3
 
 zi = ZingMp3()
+# login is not required 
+zi.login("zpsid cookies")
 zi.getDetailPlaylist("67ZFO8DZ")
 zi.getDetailArtist("Cammie")
 zi.getRadioInfo("IWZ979CW")
@@ -37,6 +39,8 @@ from zingmp3py import ZingMp3Async
 
 async def main():
     zi = ZingMp3Async()
+    # login is not required 
+    await zi.login("zpsid cookies")
     await zi.getDetailPlaylist("67ZFO8DZ")
     await zi.getDetailArtist("Cammie")
     await zi.getSongInfo("ZWAF6UFD")
@@ -46,6 +50,12 @@ async def main():
 
 asyncio.run(main())
 ```
+
+## how to get zpsid cookies
+
+go to https://id.zalo.me/account/logininfo then check f12 go to tab application go to cookies and check for cookie name zpsid
+
+note: please check check you are login or not by check key  `logged` in json return in that url is `true`
 
 ## Get Type And ID
 

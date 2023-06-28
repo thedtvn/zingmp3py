@@ -1,21 +1,32 @@
 import re
+from requests.cookies import RequestsCookieJar
 from .util import *
 from .sobj import *
 
 
 class ZingMp3:
+    cooke = RequestsCookieJar()
+    apikey = {}
+    zpsid = None
+    last_updated = 0
+
     def __init__(self):
-        self.apikey = {}
-        self.cooke = {"cookies": {}, "last_updated": 0}
+        pass
 
     def get_ck(self, request: requests.Session):
-        if int(self.cooke["last_updated"] - 60) < int(time.time()):
+        if int(self.last_updated - 60) < int(time.time()):
+            if self.zpsid:
+                ck = {"zpsid": self.zpsid}
+                with request.get("https://id.zalo.me/account?continue=https%3A%2F%2Fzingmp3.vn", cookies=ck) as r:
+                    if str(r.url) != "https://zingmp3.vn":
+                        raise Exception("zpsid is invalid cookie")
             with request.get("https://zingmp3.vn") as r:
-                self.cooke["cookies"] = r.cookies
-                self.cooke["last_updated"] = int(time.time())
-                return self.cooke["cookies"]
+                pass
+            self.cooke.update(r.cookies)
+            self.last_updated = int(time.time())
+            request.cookies.update(self.cooke)
         else:
-            return self.cooke["cookies"]
+            request.cookies.update(self.cooke)
 
     def get_key(self):
         if not self.apikey:
@@ -42,11 +53,22 @@ class ZingMp3:
         qs.update({"sig": sig[0]})
         url = "https://zingmp3.vn" + path
         with requests.Session() as s:
-            with s.get(url, params=qs, cookies=self.get_ck(s)) as r:
+            self.get_ck(s)
+            with s.get(url, params=qs) as r:
                 data = r.json()
                 if data['err'] != 0:
                     raise ZingMp3Error(data)
                 return data
+
+    def login(self, zpsid):
+        with requests.Session() as s:
+            with s.get("https://id.zalo.me/account/logininfo", cookies={"zpsid": zpsid}) as r:
+                out = r.json()
+            if out["error_code"] != 0:
+                raise ZingMp3Error({"msg": f"Login Error: {out['error_message']}"})
+            elif not out["data"]["logged"]:
+                raise ZingMp3Error({"msg": f"zpsid is invalid"})
+        self.zpsid = zpsid
 
     def getDetailPlaylist(self, id):
         data = self.requestZing("/api/v2/page/get/playlist", {"id": id})

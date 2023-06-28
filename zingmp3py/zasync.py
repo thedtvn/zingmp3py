@@ -1,5 +1,8 @@
 import aiohttp
 import re
+
+from yarl import URL
+
 from .util import *
 from .zsync import ZingMp3
 from .sobj import *
@@ -38,15 +41,27 @@ class Playlist(Playlist):
         return [Song(song, self.client) for song in self.indata['song']["items"]]
 
 class ZingMp3Async(ZingMp3):
+    cooke = aiohttp.CookieJar()
+    apikey = {}
+    zpsid = None
+    last_updated = 0
 
     async def get_ck(self, request: aiohttp.ClientSession):
-        if int(self.cooke["last_updated"] + 60) < int(time.time()):
+        if int(self.last_updated + 60) < int(time.time()):
+            if self.zpsid:
+                ck = {"zpsid": self.zpsid}
+                async with request.get("https://id.zalo.me/account?continue=https%3A%2F%2Fzingmp3.vn", cookies=ck) as r:
+                    if str(r.url) != "https://zingmp3.vn":
+                        raise Exception("zpsid is invalid cookie")
             async with request.get("https://zingmp3.vn") as r:
-                self.cooke["cookies"] = r.cookies
-                self.cooke["last_updated"] = int(time.time())
-                return self.cooke["cookies"]
+                pass
+            for i in list(request.cookie_jar):
+                self.cooke.update_cookies({i.key: i})
+                request.cookie_jar.update_cookies({i.key: i})
+            self.last_updated = int(time.time())
         else:
-            return self.cooke["cookies"]
+            for i in list(self.cooke):
+                request.cookie_jar.update_cookies({i.key: i})
 
     async def get_key(self):
         if not self.apikey:
@@ -64,9 +79,7 @@ class ZingMp3Async(ZingMp3):
         else:
             return self.apikey["data"]
 
-    async def requestZing(self, path, qs=None, haveParam=0):
-        if qs is None:
-            qs = {}
+    async def requestZing(self, path, qs={}, haveParam=0):
         apikey, skey = await self.get_key()
         param = "&".join([f"{i}={k}" for i, k in qs.items()])
         sig = hashParam(skey, path, param, haveParam)
@@ -75,12 +88,22 @@ class ZingMp3Async(ZingMp3):
         qs.update({"sig": sig[0]})
         url = "https://zingmp3.vn" + path
         async with aiohttp.ClientSession() as s:
-            ck = await self.get_ck(s)
-            async with s.get(url, params=qs, cookies=ck) as r:
+            await self.get_ck(s)
+            async with s.get(url, params=qs) as r:
                 data = await r.json()
                 if data['err'] != 0:
                     raise ZingMp3Error(data)
                 return data
+
+    async def login(self, zpsid):
+        async with aiohttp.ClientSession() as s:
+            async with s.get("https://id.zalo.me/account/logininfo", cookies={"zpsid": zpsid}) as r:
+                out = await r.json()
+            if out["error_code"] != 0:
+                raise ZingMp3Error({"msg": f"Login Error: {out['error_message']}"})
+            elif not out["data"]["logged"]:
+                raise ZingMp3Error({"msg": f"zpsid is invalid"})
+        self.zpsid = zpsid
 
     async def getDetailPlaylist(self, id):
         data = await self.requestZing("/api/v2/page/get/playlist", {"id": id})
